@@ -9,7 +9,8 @@ import {
     RepeatWrapping,
     MeshLambertMaterial,
     PlaneGeometry,
-    Mesh
+    Mesh,
+    BoxGeometry,
 } from 'three';
 import * as CANNON from 'cannon-es';
 import PlayerControls from './PlayerControls';
@@ -46,7 +47,7 @@ class BasicScene {
     }
 
     addLights() {
-        const ambientLight = new AmbientLight(0x303030);
+        const ambientLight = new AmbientLight(0xa0a0a0);
         this.scene.add(ambientLight);
 
         const directionalLight = new DirectionalLight(0xffffff, 1);
@@ -62,7 +63,7 @@ class BasicScene {
 
     createObjects() {
         const grassTexturePath = new URL('./assets/materials/ground.jpg', import.meta.url);
-        const boxTexturePath = new URL('./assets/materials/grass.jpg', import.meta.url);
+        const boxTexturePath = new URL('./assets/materials/creg.jpg', import.meta.url);
 
         const loader = new TextureLoader();
 
@@ -72,7 +73,7 @@ class BasicScene {
             texture.repeat.set(100, 100);
 
             const groundMaterial = new MeshLambertMaterial({ map: texture });
-            const groundGeometry = new PlaneGeometry(1000, 1000, 100, 100);
+            const groundGeometry = new PlaneGeometry(500, 500, 100, 100);
 
             const vertices = groundGeometry.attributes.position.array;
             for (let i = 0; i <= vertices.length; i += 3) {
@@ -88,11 +89,11 @@ class BasicScene {
 
         loader.load(boxTexturePath.href, (texture) => {
             const boxMaterial = new MeshLambertMaterial({ map: texture });
-            const boxGeometry = new PlaneGeometry();
+            const boxGeometry = new BoxGeometry(10, 10, 10);
 
-            for (let i = 0; i < 1000; i++) {
+            for (let i = 0; i < 10; i++) {
                 const boxMesh = new Mesh(boxGeometry, boxMaterial);
-                boxMesh.position.set(Math.random() * 100 - 50, Math.random() * 50 + 20, Math.random() * 100 - 50);
+                boxMesh.position.set(Math.random() * 100, Math.random() * 50, Math.random() * 100);
                 this.scene.add(boxMesh);
 
                 const boxBody = new CANNON.Body({
