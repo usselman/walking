@@ -1,51 +1,32 @@
 import * as THREE from 'three';
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import * as CANNON from 'cannon-es';
+import PlayerControls from './PlayerControls';
 
-/**
- * Sets up a basic Three.js scene with a first-person camera, a ground plane, and floating 3D objects with basic collision detection.
- */
 class BasicScene {
     constructor() {
         this.init();
-        this.moveForward = false;
-        this.moveBackward = false;
-        this.moveLeft = false;
-        this.moveRight = false;
-        this.canJump = false;
-        this.velocity = new THREE.Vector3();
-        this.direction = new THREE.Vector3();
-        this.addEventListeners();
     }
-    /**
-     * Initializes the scene, camera, renderer, controls, physics world, and objects.
-     */
+
     init() {
         this.scene = new THREE.Scene();
         this.clock = new THREE.Clock();
         this.physicsWorld = new CANNON.World({
-            gravity: new CANNON.Vec3(0, -9.82, 0), // Earth's gravity in the Y direction
+            gravity: new CANNON.Vec3(0, -9.82, 0),
         });
 
         this.createCamera();
         this.createRenderer();
         this.addLights();
-        this.createControls();
         this.createObjects();
+        this.createControls();
         this.animate();
     }
 
-    /**
-     * Creates the camera and sets its position.
-     */
     createCamera() {
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.set(0, 1, 2);
     }
 
-    /**
-     * Creates the WebGL renderer.
-     */
     createRenderer() {
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -56,11 +37,15 @@ class BasicScene {
      * Adds ambient and directional lights to the scene.
      */
     addLights() {
-        const ambientLight = new THREE.AmbientLight(0x404040);
+        const ambientLight = new THREE.AmbientLight(0xf0f0f0);
         this.scene.add(ambientLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(1, 10, 6);
+        directionalLight.position.set(1, 100, 6);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.rotateX(-Math.PI / 2);
         this.scene.add(directionalLight);
     }
 
@@ -68,10 +53,7 @@ class BasicScene {
      * Creates and sets up the first-person controls.
      */
     createControls() {
-        this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
-        document.addEventListener('click', () => {
-            this.controls.lock();
-        }, false);
+        this.controls = new PlayerControls(this.camera, this.renderer.domElement);
     }
 
     /**
@@ -79,8 +61,8 @@ class BasicScene {
      */
     createObjects() {
         // Ground
-        const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x888888 });
-        const groundGeometry = new THREE.PlaneGeometry(100, 100);
+        const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x00aa00 });
+        const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
         const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
         groundMesh.rotation.x = -Math.PI / 2;
         groundMesh.receiveShadow = true;
@@ -96,11 +78,11 @@ class BasicScene {
         this.physicsWorld.addBody(groundBody);
 
         // Floating objects
-        const boxMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+        const boxMaterial = new THREE.MeshLambertMaterial({ color: 0x00ffff });
         const boxGeometry = new THREE.BoxGeometry();
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 1000; i++) {
             const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-            boxMesh.position.set(Math.random() * 10 - 5, Math.random() * 5 + 2, Math.random() * 10 - 5);
+            boxMesh.position.set(Math.random() * 100 - 50, Math.random() * 50 + 20, Math.random() * 100 - 50);
             this.scene.add(boxMesh);
 
             // Box physics
@@ -114,76 +96,17 @@ class BasicScene {
         }
     }
 
-    addEventListeners() {
-        document.addEventListener('keydown', (event) => {
-            switch (event.code) {
-                case 'ArrowUp':
-                case 'KeyW':
-                    this.moveForward = true;
-                    break;
-                case 'ArrowLeft':
-                case 'KeyA':
-                    this.moveLeft = true;
-                    break;
-                case 'ArrowDown':
-                case 'KeyS':
-                    this.moveBackward = true;
-                    break;
-                case 'ArrowRight':
-                case 'KeyD':
-                    this.moveRight = true;
-                    break;
-            }
-        }, false);
-
-        document.addEventListener('keyup', (event) => {
-            switch (event.code) {
-                case 'ArrowUp':
-                case 'KeyW':
-                    this.moveForward = false;
-                    break;
-                case 'ArrowLeft':
-                case 'KeyA':
-                    this.moveLeft = false;
-                    break;
-                case 'ArrowDown':
-                case 'KeyS':
-                    this.moveBackward = false;
-                    break;
-                case 'ArrowRight':
-                case 'KeyD':
-                    this.moveRight = false;
-                    break;
-            }
-        }, false);
-    }
-
     /**
      * Animation loop for the scene.
      */
     animate() {
         requestAnimationFrame(() => this.animate());
-
         const delta = this.clock.getDelta();
         this.physicsWorld.step(delta);
-
-        if (this.controls.isLocked === true) {
-            this.velocity.x -= this.velocity.x * 10.0 * delta;
-            this.velocity.z -= this.velocity.z * 10.0 * delta;
-
-            this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
-            this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
-            this.direction.normalize(); // this ensures consistent movements in all directions
-
-            if (this.moveForward || this.moveBackward) this.velocity.z -= this.direction.z * 400.0 * delta;
-            if (this.moveLeft || this.moveRight) this.velocity.x -= this.direction.x * 400.0 * delta;
-
-            this.controls.moveRight(-this.velocity.x * delta);
-            this.controls.moveForward(-this.velocity.z * delta);
-        }
-
+        this.controls.update(delta); // Make sure this is being called
         this.renderer.render(this.scene, this.camera);
     }
+
 }
 
-new BasicScene();
+export default BasicScene;

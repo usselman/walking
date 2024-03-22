@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     mode: 'development', // 'production' for production builds
-    entry: './src/scene.js', // Your entry point, where your main JavaScript file is located.
+    entry: './src/index.js', // Your entry point, where your main JavaScript file is located.
     output: {
         filename: 'bundle.js', // The name of the output bundle.
         path: path.resolve(__dirname, 'dist'), // Output directory
