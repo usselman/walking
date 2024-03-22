@@ -9,15 +9,16 @@ class PlayerControls {
         this.moveBackward = false;
         this.moveLeft = false;
         this.moveRight = false;
+        this.canJump = false;
         this.velocity = new THREE.Vector3();
         this.direction = new THREE.Vector3();
+        this.gravity = -15; // Gravity pulling the player down
+        this.jumpVelocity = 35; // The initial velocity at the start of a jump
 
         this.addEventListeners();
-        // Add this inside your PlayerControls constructor or as part of the addEventListeners method
         domElement.addEventListener('click', () => {
             this.controls.lock();
         }, false);
-
     }
 
     addEventListeners() {
@@ -38,6 +39,12 @@ class PlayerControls {
                 case 'ArrowRight':
                 case 'KeyD':
                     this.moveRight = true;
+                    break;
+                case 'Space':
+                    if (this.canJump) {
+                        this.velocity.y += this.jumpVelocity;
+                        this.canJump = false; // Prevent multi-jumping in the air
+                    }
                     break;
             }
         }, false);
@@ -65,11 +72,10 @@ class PlayerControls {
     }
 
     update(delta) {
-        console.log('Updating controls');
         if (this.controls.isLocked === true) {
-
             this.velocity.x -= this.velocity.x * 10.0 * delta;
             this.velocity.z -= this.velocity.z * 10.0 * delta;
+            this.velocity.y += this.gravity * delta; // Apply gravity
 
             this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
             this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
@@ -81,6 +87,14 @@ class PlayerControls {
             this.controls.moveRight(-this.velocity.x * delta);
             this.controls.moveForward(-this.velocity.z * delta);
 
+            // Simulate simple collision detection with the ground
+            if (this.velocity.y < 0 && this.controls.getObject().position.y < 2.0) {
+                this.velocity.y = 0;
+                this.canJump = true; // The player can jump again once they've landed
+            }
+
+            // Apply the velocity
+            this.controls.getObject().position.y += this.velocity.y * delta; // Update Y position based on velocity
         }
     }
 }

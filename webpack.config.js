@@ -23,14 +23,18 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.js$/, // Use babel-loader for .js files.
+                test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env'], // Preset used for env setup
+                        presets: ['@babel/preset-env'],
                     },
                 },
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
             },
             // You can add more loaders here for handling other types of files, like CSS or images.
         ],
