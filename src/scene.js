@@ -18,6 +18,8 @@ import PlayerControls from './PlayerControls';
 class BasicScene {
     constructor() {
         this.init();
+        this.boxMeshes = [];
+        this.animate = this.animate.bind(this);
     }
 
     init() {
@@ -47,13 +49,13 @@ class BasicScene {
     }
 
     addLights() {
-        const ambientLight = new AmbientLight(0xa0a0a0);
+        const ambientLight = new AmbientLight(0xb0b0b0);
         this.scene.add(ambientLight);
 
         const directionalLight = new DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(1, 100, 6);
+        directionalLight.position.set(1, 10, 6);
         directionalLight.castShadow = true;
-        directionalLight.rotateX(-Math.PI / 2);
+        //directionalLight.rotateX(-Math.PI / 2);
         this.scene.add(directionalLight);
     }
 
@@ -93,26 +95,30 @@ class BasicScene {
 
             for (let i = 0; i < 10; i++) {
                 const boxMesh = new Mesh(boxGeometry, boxMaterial);
-                boxMesh.position.set(Math.random() * 100, Math.random() * 50, Math.random() * 100);
+                boxMesh.position.set(Math.random() * 100, Math.random() * 10, Math.random() * 100);
                 this.scene.add(boxMesh);
+                this.boxMeshes.push(boxMesh); // This should work correctly now
 
                 const boxBody = new CANNON.Body({
                     mass: 1,
-                    shape: new CANNON.Box(new CANNON.Vec3(10.5, 10.5, 10.5)),
+                    shape: new CANNON.Box(new CANNON.Vec3(5, 5, 5)), // Adjusted to match BoxGeometry size
                     material: new CANNON.Material({ friction: 0.5, restitution: 0.7 }),
                 });
                 boxBody.position.copy(boxMesh.position);
                 this.physicsWorld.addBody(boxBody);
             }
-
         });
     }
 
-    animate() {
-        requestAnimationFrame(() => this.animate());
+
+    animate = () => {
+        requestAnimationFrame(this.animate);
         const delta = this.clock.getDelta();
         this.physicsWorld.step(delta);
         this.controls.update(delta);
+        // this.boxMeshes.forEach((boxMesh) => {
+        //     boxMesh.rotation.x += delta; // Adjust the rotation speed if necessary
+        // });
         this.renderer.render(this.scene, this.camera);
     }
 }
