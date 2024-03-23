@@ -15,6 +15,7 @@ import {
 } from 'three';
 import * as CANNON from 'cannon-es';
 import PlayerControls from './PlayerControls';
+import { calculateRandomRange } from './utils/utility';
 
 class BasicScene {
     constructor() {
@@ -38,15 +39,15 @@ class BasicScene {
 
         // Load the skybox texture
         const loader = new CubeTextureLoader();
-        const cregBoxPath = new URL('./assets/materials/creg.jpg', import.meta.url);
+        const skyBoxPath = new URL('./assets/materials/mw.jpg', import.meta.url);
 
         const texture = loader.load([
-            cregBoxPath.href,
-            cregBoxPath.href,
-            cregBoxPath.href,
-            cregBoxPath.href,
-            cregBoxPath.href,
-            cregBoxPath.href,
+            skyBoxPath.href,
+            skyBoxPath.href,
+            skyBoxPath.href,
+            skyBoxPath.href,
+            skyBoxPath.href,
+            skyBoxPath.href,
         ], () => {
             console.log('Texture loaded successfully');
         }, undefined, (error) => {
@@ -88,8 +89,8 @@ class BasicScene {
     }
 
     createObjects() {
-        const grassTexturePath = new URL('./assets/materials/ground.jpg', import.meta.url);
-        const boxTexturePath = new URL('./assets/materials/creg.jpg', import.meta.url);
+        const grassTexturePath = new URL('./assets/materials/dither_ground.png', import.meta.url);
+        const boxTexturePath = new URL('./assets/materials/dither_texture.png', import.meta.url);
 
         const loader = new TextureLoader();
 
@@ -102,7 +103,7 @@ class BasicScene {
             const groundGeometry = new PlaneGeometry(500, 500, 100, 100);
 
             const vertices = groundGeometry.attributes.position.array;
-            for (let i = 0; i <= vertices.length; i += 3) {
+            for (let i = 0; i <= vertices.length; i += 25) {
                 vertices[i + 2] = Math.random() * 10 - 5;
             }
             groundGeometry.computeVertexNormals();
@@ -115,11 +116,11 @@ class BasicScene {
 
         loader.load(boxTexturePath.href, (texture) => {
             const boxMaterial = new MeshLambertMaterial({ map: texture });
-            const boxGeometry = new BoxGeometry(5, 5, 5);
+            const boxGeometry = new BoxGeometry(5, 50, 5);
 
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 500; i++) {
                 const boxMesh = new Mesh(boxGeometry, boxMaterial);
-                boxMesh.position.set(Math.random() * 150, Math.random() * 50, Math.random() * 150);
+                boxMesh.position.set(calculateRandomRange(-500, 500), calculateRandomRange(0, 150), calculateRandomRange(-500, 500));
                 this.scene.add(boxMesh);
                 this.boxMeshes.push(boxMesh); // This should work correctly now
 
