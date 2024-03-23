@@ -10,13 +10,19 @@
             margin: 0;
         }
 
-        canvas {
+        #c {
+            width: 100%;
+            height: 100%;
             display: block;
+            background: url(/src/assets/materials/creg.jpg) no-repeat center center;
+            background-size: cover;
         }
     </style>
-<script defer src="bundle.js"></script><script defer src="bundle.js"></script><script defer src="bundle.js"></script><script defer src="bundle.js"></script><script defer src="bundle.js"></script></head>
+    <script defer src="bundle.js"></script>
+</head>
 
 <body>
+    <canvas id="c"></canvas>
     <!-- No script tag here; webpack will inject it -->
 </body>
 

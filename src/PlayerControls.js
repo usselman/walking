@@ -88,7 +88,7 @@ class PlayerControls {
             this.controls.moveForward(-this.velocity.z * delta);
 
             // Simulate simple collision detection with the ground
-            if (this.velocity.y < 0 && this.controls.getObject().position.y < 2.0) {
+            if (this.velocity.y < 0 && this.controls.getObject().position.y < 5.0) {
                 this.velocity.y = 0;
                 this.canJump = true; // The player can jump again once they've landed
             }

@@ -11,6 +11,7 @@ import {
     PlaneGeometry,
     Mesh,
     BoxGeometry,
+    CubeTextureLoader,
 } from 'three';
 import * as CANNON from 'cannon-es';
 import PlayerControls from './PlayerControls';
@@ -34,16 +35,39 @@ class BasicScene {
         this.addLights();
         this.createObjects();
         this.createControls();
+
+        // Load the skybox texture
+        const loader = new CubeTextureLoader();
+        const cregBoxPath = new URL('./assets/materials/creg.jpg', import.meta.url);
+
+        const texture = loader.load([
+            cregBoxPath.href,
+            cregBoxPath.href,
+            cregBoxPath.href,
+            cregBoxPath.href,
+            cregBoxPath.href,
+            cregBoxPath.href,
+        ], () => {
+            console.log('Texture loaded successfully');
+        }, undefined, (error) => {
+            console.error('An error occurred:', error);
+        });
+
+        // Apply the texture as a skybox
+        this.scene.background = texture;
         this.animate();
     }
 
     createCamera() {
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 1, 2);
+        this.camera.position.set(50, 5, 100);
     }
 
     createRenderer() {
-        this.renderer = new WebGLRenderer();
+        this.renderer = new WebGLRenderer(
+            { canvas: document.getElementById('c') },
+        );
+
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
     }
@@ -53,7 +77,7 @@ class BasicScene {
         this.scene.add(ambientLight);
 
         const directionalLight = new DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(1, 10, 6);
+        directionalLight.position.set(100, 50, 6);
         directionalLight.castShadow = true;
         //directionalLight.rotateX(-Math.PI / 2);
         this.scene.add(directionalLight);
@@ -91,11 +115,11 @@ class BasicScene {
 
         loader.load(boxTexturePath.href, (texture) => {
             const boxMaterial = new MeshLambertMaterial({ map: texture });
-            const boxGeometry = new BoxGeometry(10, 10, 10);
+            const boxGeometry = new BoxGeometry(5, 5, 5);
 
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 100; i++) {
                 const boxMesh = new Mesh(boxGeometry, boxMaterial);
-                boxMesh.position.set(Math.random() * 100, Math.random() * 10, Math.random() * 100);
+                boxMesh.position.set(Math.random() * 150, Math.random() * 50, Math.random() * 150);
                 this.scene.add(boxMesh);
                 this.boxMeshes.push(boxMesh); // This should work correctly now
 
