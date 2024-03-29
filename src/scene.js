@@ -77,7 +77,7 @@ class BasicScene {
         const ambientLight = new AmbientLight(0xb0b0b0);
         this.scene.add(ambientLight);
 
-        const directionalLight = new DirectionalLight(0x000fff, 0.51);
+        const directionalLight = new DirectionalLight(0x000fff, 1.0);
         directionalLight.position.set(100, 50, 6);
         directionalLight.castShadow = true;
         //directionalLight.rotateX(-Math.PI / 2);
