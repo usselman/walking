@@ -39,7 +39,7 @@ class BasicScene {
 
         // Load the skybox texture
         const loader = new CubeTextureLoader();
-        const skyBoxPath = new URL('./assets/materials/mw.jpg', import.meta.url);
+        const skyBoxPath = new URL('./assets/materials/stars.jpg', import.meta.url);
 
         const texture = loader.load([
             skyBoxPath.href,
@@ -61,7 +61,7 @@ class BasicScene {
 
     createCamera() {
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(50, 5, 100);
+        this.camera.position.set(50, 8, 100);
     }
 
     createRenderer() {
@@ -77,7 +77,7 @@ class BasicScene {
         const ambientLight = new AmbientLight(0xb0b0b0);
         this.scene.add(ambientLight);
 
-        const directionalLight = new DirectionalLight(0xffffff, 1);
+        const directionalLight = new DirectionalLight(0x000fff, 0.51);
         directionalLight.position.set(100, 50, 6);
         directionalLight.castShadow = true;
         //directionalLight.rotateX(-Math.PI / 2);
@@ -89,18 +89,18 @@ class BasicScene {
     }
 
     createObjects() {
-        const grassTexturePath = new URL('./assets/materials/dither_ground.png', import.meta.url);
-        const boxTexturePath = new URL('./assets/materials/dither_texture.png', import.meta.url);
+        const grassTexturePath = new URL('./assets/materials/stars.jpg', import.meta.url);
+        const boxTexturePath = new URL('./assets/materials/night.jpg', import.meta.url);
 
         const loader = new TextureLoader();
 
         loader.load(grassTexturePath.href, (texture) => {
             texture.wrapS = RepeatWrapping;
             texture.wrapT = RepeatWrapping;
-            texture.repeat.set(100, 100);
+            texture.repeat.set(10, 10);
 
             const groundMaterial = new MeshLambertMaterial({ map: texture });
-            const groundGeometry = new PlaneGeometry(500, 500, 100, 100);
+            const groundGeometry = new PlaneGeometry(1000, 1000, 1, 1);
 
             const vertices = groundGeometry.attributes.position.array;
             for (let i = 0; i <= vertices.length; i += 25) {
