@@ -11,11 +11,15 @@ import {
     PlaneGeometry,
     Mesh,
     BoxGeometry,
-    CubeTextureLoader,
+    SphereGeometry,
+    MeshBasicMaterial,
+    EquirectangularReflectionMapping,
 } from 'three';
 import * as CANNON from 'cannon-es';
 import PlayerControls from './PlayerControls';
 import { calculateRandomRange } from './utils/utility';
+import skyboxPx from './assets/materials/heart3.jpg';
+
 
 class BasicScene {
     constructor() {
@@ -31,35 +35,29 @@ class BasicScene {
             gravity: new CANNON.Vec3(0, -9.82, 0),
         });
 
+        // Initialize the TextureLoader instead of CubeTextureLoader for a single image
+        const loader = new TextureLoader();
+
+        try {
+            const texture = await new Promise((resolve, reject) => {
+                loader.load(skyboxPx, (loadedTexture) => {
+                    loadedTexture.mapping = EquirectangularReflectionMapping;
+                    resolve(loadedTexture);
+                }, undefined, reject);
+            });
+
+            this.scene.background = texture;
+        } catch (error) {
+            console.error('An error occurred while loading the skybox:', error);
+        }
+
+
         this.createCamera();
         this.addLights();
         this.createRenderer();
-        //await this.loadSkyBox();
         this.createObjects();
         this.createControls();
         this.animate();
-    }
-
-    loadSkyBox() {
-        return new Promise((resolve, reject) => {
-            const loader = new CubeTextureLoader();
-            const skyBoxPath = './assets/materials/sparkle1.jpg'; // Simplified for this example
-
-            loader.load([
-                skyBoxPath,
-                skyBoxPath,
-                skyBoxPath,
-                skyBoxPath,
-                skyBoxPath,
-                skyBoxPath,
-            ], (texture) => {
-                this.scene.background = texture;
-                resolve();
-            }, undefined, (error) => {
-                console.error('An error occurred while loading the skybox:', error);
-                reject(error);
-            });
-        });
     }
 
     createCamera() {
@@ -93,7 +91,7 @@ class BasicScene {
 
     createObjects() {
         const grassTexturePath = new URL('./assets/materials/stars.jpg', import.meta.url);
-        const boxTexturePath = new URL('./assets/materials/night.jpg', import.meta.url);
+        const boxTexturePath = new URL('./assets/materials/heart4.jpg', import.meta.url);
 
         const loader = new TextureLoader();
 
@@ -119,11 +117,11 @@ class BasicScene {
 
         loader.load(boxTexturePath.href, (texture) => {
             const boxMaterial = new MeshLambertMaterial({ map: texture });
-            const boxGeometry = new BoxGeometry(5, 50, 5);
+            const sphereGeometry = new SphereGeometry(5, 250, 50);
 
             for (let i = 0; i < 500; i++) {
-                const boxMesh = new Mesh(boxGeometry, boxMaterial);
-                boxMesh.position.set(calculateRandomRange(-500, 500), calculateRandomRange(-500, 500), calculateRandomRange(-500, 500));
+                const boxMesh = new Mesh(sphereGeometry, boxMaterial);
+                boxMesh.position.set(calculateRandomRange(-1000, 1000), calculateRandomRange(-500, 500), calculateRandomRange(-500, 500));
                 this.scene.add(boxMesh);
                 this.boxMeshes.push(boxMesh); // This should work correctly now
 
@@ -143,9 +141,11 @@ class BasicScene {
         const delta = this.clock.getDelta();
         this.physicsWorld.step(delta);
         this.controls.update(delta);
-        // this.boxMeshes.forEach((boxMesh) => {
-        //     boxMesh.rotation.x += delta; // Adjust the rotation speed if necessary
-        // });
+        this.boxMeshes.forEach((boxMesh) => {
+            boxMesh.rotation.x += delta; // Adjust the rotation speed if necessary
+            boxMesh.position.y += delta;
+            boxMesh.position.z -= delta;
+        });
         this.renderer.render(this.scene, this.camera);
         requestAnimationFrame(this.animate);
     }
