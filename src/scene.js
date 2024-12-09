@@ -18,7 +18,7 @@ import {
 import * as CANNON from 'cannon-es';
 import PlayerControls from './PlayerControls';
 import { calculateRandomRange } from './utils/utility';
-import skyboxPx from './assets/materials/heart3.jpg';
+import skyboxPx from './assets/materials/sky.jpg';
 
 
 class BasicScene {
@@ -90,8 +90,8 @@ class BasicScene {
     }
 
     createObjects() {
-        const grassTexturePath = new URL('./assets/materials/stars.jpg', import.meta.url);
-        const boxTexturePath = new URL('./assets/materials/heart4.jpg', import.meta.url);
+        const grassTexturePath = new URL('./assets/materials/mw.jpg', import.meta.url);
+        const boxTexturePath = new URL('./assets/materials/mw.jpg', import.meta.url);
 
         const loader = new TextureLoader();
 
@@ -112,7 +112,7 @@ class BasicScene {
             const groundMesh = new Mesh(groundGeometry, groundMaterial);
             groundMesh.rotation.x = -Math.PI / 2;
             groundMesh.receiveShadow = true;
-            //this.scene.add(groundMesh);
+            this.scene.add(groundMesh);
         });
 
         loader.load(boxTexturePath.href, (texture) => {
